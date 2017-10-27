@@ -15,7 +15,7 @@ DOCUMENTATION = '''
 module: cloudwatchlogs_log_group
 short_description: create or delete log_group in CloudWatchLogs
 notes:
-    - for details of the parameters and returns see U(http://boto3.readthedocs.io/en/latest/reference/services/logs.html#CloudWatchLogs.Client.create_log_group) and U(http://boto3.readthedocs.io/en/latest/reference/services/logs.html#CloudWatchLogs.Client.delete_log_group)
+    - for details of the parameters and returns see U(http://boto3.readthedocs.io/en/latest/reference/services/logs.html)
 description:
     - Create or delete log_group in CloudWatchLogs.
 version_added: "2.5"
@@ -23,25 +23,24 @@ author:
     - Willian Ricardo(@willricardo) <willricardo@gmail.com>
 requirements: [ json, botocore, boto3 ]
 options:
-    cloudwatchlogs_log_group:
-        state:
-          description:
-            - Whether the rule is present or absent
-          choices: ["present", "absent"]
-          default: present
-          required: false
-        log_group_name:
-          description:
-            - The name of the log group.
-          required: true
-        kms_key_id:
-          description:
-            - The Amazon Resource Name (ARN) of the CMK to use when encrypting log data.
-          required: false
-        tags:
-          description:
-            - The key-value pairs to use for the tags.
-          required: false
+    state:
+      description:
+        - Whether the rule is present or absent
+      choices: ["present", "absent"]
+      default: present
+      required: false
+    log_group_name:
+      description:
+        - The name of the log group.
+      required: true
+    kms_key_id:
+      description:
+        - The Amazon Resource Name (ARN) of the CMK to use when encrypting log data.
+      required: false
+    tags:
+      description:
+        - The key-value pairs to use for the tags.
+      required: false
 extends_documentation_fragment:
     - aws
     - ec2
@@ -84,9 +83,11 @@ try:
 except ImportError:
     pass  # will be detected by imported HAS_BOTO3
 
+
 def create_log_group(client, log_group_name, kms_key_id, tags):
+
     request = {
-        'logGroupName' : log_group_name
+        'logGroupName': log_group_name
     }
     if kms_key_id:
         request['kmsKeyId'] = kms_key_id
@@ -100,7 +101,7 @@ def delete_log_group(client, log_group_name):
     desc_log_group = client.describe_log_groups(logGroupNamePrefix=log_group_name)
 
     if 'logGroups' in desc_log_group:
-        for  i in desc_log_group['logGroups']:
+        for i in desc_log_group['logGroups']:
             if log_group_name in i['logGroupName']:
                 client.delete_log_group(logGroupName=log_group_name)
 
@@ -131,7 +132,7 @@ def main():
     state = module.params.get('state')
 
     if state == 'present':
-        create_log_group(client=logs,log_group_name=module.params['log_group_name'],kms_key_id=module.params['kms_key_id'],tags=module.params['tags'])
+        create_log_group(client=logs, log_group_name=module.params['log_group_name'], kms_key_id=module.params['kms_key_id'], tags=module.params['tags'])
     elif state == 'absent':
         delete_log_group(client=logs, log_group_name=module.params['log_group_name'])
     else:
